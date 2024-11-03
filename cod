@@ -1,0 +1,40 @@
+import random
+
+# Definir as distâncias entre as cidades
+distances = {
+    (1, 2): 4, (1, 3): 6, (1, 4): 3, (1, 5): 7,
+    (2, 3): 4, (2, 4): 3, (2, 5): 4,
+    (3, 4): 3, (3, 5): 3,
+    (4, 5): 3
+}
+
+# Função para calcular a distância de uma rota
+def calculate_distance(route):
+    total_distance = 0
+    for i in range(len(route) - 1):
+        total_distance += distances.get((route[i], route[i+1]), distances.get((route[i+1], route[i])))
+    total_distance += distances.get((route[-1], route[0]), distances.get((route[0], route[-1])))
+    return total_distance
+
+# Função para realizar mutação (troca duas cidades aleatórias)
+def mutate(route):
+    i, j = random.sample(range(len(route)), 2)
+    route[i], route[j] = route[j], route[i]
+
+# Exemplo simplificado de evolução com seleção e mutação
+population = [random.sample(range(1, 6), 5) for _ in range(10)] # População inicial
+
+for generation in range(100): # Número de gerações
+    population = sorted(population, key=calculate_distance) # Ordenar pela aptidão
+    new_population = population[:5] # Selecionar melhores
+
+    while len(new_population) < 10:
+        parent1, parent2 = random.sample(population[:5], 2)
+        child = parent1[:2] + [c for c in parent2 if c not in parent1[:2]]
+        mutate(child)
+        new_population.append(child)
+        
+    population = new_population
+
+best_route = min(population, key=calculate_distance)
+print("Melhor rota:", best_route, "com distância:", calculate_distance(best_route))
